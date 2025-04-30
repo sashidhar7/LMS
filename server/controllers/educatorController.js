@@ -1,7 +1,8 @@
 import { clerkClient } from '@clerk/express'
 import Course from '../models/Course.js'
 import { v2 as cloudinary } from 'cloudinary'
-
+import { Purchase } from '../models/Purchase.js'
+import User  from '../models/User.js'
 // Update role to educator
 export const updateRoleToEducator = async (req, res) => {
 
@@ -29,6 +30,7 @@ export const updateRoleToEducator = async (req, res) => {
 
 //Add New Course
 export const addCourse = async (req, res) => {
+    console.log(req.body)
     
 
     try {
@@ -106,8 +108,10 @@ export const getEducatorCourses = async(req,res)=>{
 export const educatorDashboardData = async(req,res) =>{
     try {
         const educator = req.auth.userId;
+        
 
         const courses = await Course.find({educator})
+ 
 
         const totalCourses = courses.length;
 
@@ -136,6 +140,7 @@ export const educatorDashboardData = async(req,res) =>{
                 })
             })
         }
+        
         res.json({
             success : true,
             dashboardData:{
@@ -145,6 +150,7 @@ export const educatorDashboardData = async(req,res) =>{
             }
 
         })
+        
 
         
     } catch (error) {
@@ -157,7 +163,8 @@ export const educatorDashboardData = async(req,res) =>{
 }
 
 // Get Enrolled Students Data with purchase Data
-export const getEnrolledStudentsData = async(rea,res)=>{
+export const getEnrolledStudentsData = async(req,res)=>{
+    
     try{
         const educator = req.auth.userId;
         const courses = await Course.find({ educator });
@@ -165,13 +172,14 @@ export const getEnrolledStudentsData = async(rea,res)=>{
         const purchases = await Purchase.find({
             courseId : {$in : courseIds},
             status : 'completed'
-        }.populate('userId','name imageUrl').populate('courseId','courseTitle'))
+        }).populate('userId','name imageUrl').populate('courseId','courseTitle')
 
-        const enrolledStudents = purchases.map(purchase=>({
+        const enrolledStudents = purchases.map((purchase)=>({
             student : purchase.userId,
             courseTitle : purchase.courseId.courseTitle,
             purchaseDate : purchase.createdAt
         }))
+       
 
         res.json({
             success : true,

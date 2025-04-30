@@ -37,7 +37,7 @@ export const userEnrolledCourses = async(req,res)=>{
         const userData = await User.findById(userId).populate('enrolledCourses')
         res.json({
             success : true,
-            enrolledCourse : userData.enrolledCourses
+            enrolledCourses : userData.enrolledCourses
         })
 
         
